@@ -1,21 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
-import QuestionTimer from "./QuestionTimer";
 import Answers from "./Answers.jsx";
 import QUESTIONS from "./question.js";
 
 export default function Question({ index, onSelectAnswer, onSkipAnswer }) {
+  const [remainingTime, setRemainingTime] = useState(30);
+  const [intervalID, setIntervalID] = useState(null);
   const [answer, setAnswer] = useState({
     selectedAnswer: "",
     isCorrect: null,
   });
 
-  let timer = 10000;
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRemainingTime((prevRemainingTime) => prevRemainingTime - 1);
+    }, 1000);
+    setIntervalID(interval);
+
+    return () => {
+      clearTimeout(interval);
+    };
+  }, []);
+
   if (answer.selectedAnswer) {
-    timer = 1000;
-  }
-  if (answer.isCorrect !== null) {
-    timer = 2000;
+    clearInterval(intervalID);
   }
 
   function hadleSelectAnswer(answer) {
@@ -36,6 +44,12 @@ export default function Question({ index, onSelectAnswer, onSkipAnswer }) {
     }, 1000);
   }
 
+  useEffect(() => {
+    if (remainingTime < 0) {
+      onSkipAnswer();
+    }
+  }, [remainingTime]);
+
   let answerState = "";
 
   if (answer.selectedAnswer && answer.isCorrect !== null) {
@@ -46,12 +60,9 @@ export default function Question({ index, onSelectAnswer, onSkipAnswer }) {
 
   return (
     <div id="question">
-      <QuestionTimer
-        key={timer}
-        timeout={timer}
-        onTImeout={answer.selectedAnswer === "" ? onSkipAnswer : null}
-        mode={answerState}
-      />
+      <>
+        <div id="remainingTime">{remainingTime}</div>
+      </>
       <h2>{QUESTIONS[index].text}</h2>
       <Answers
         answers={QUESTIONS[index].answers}

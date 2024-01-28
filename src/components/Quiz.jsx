@@ -10,14 +10,11 @@ export default function Quiz() {
   const activeQuestionIndex = userAnswers.length;
   const quizIsComplete = activeQuestionIndex === QUESTIONS.length;
 
-  const hadleSelectAnswer = useCallback(function hadleSelectAnswer(
-    selectedAnswer
-  ) {
+  const hadleSelectAnswer = useCallback(function (selectedAnswer) {
     setUserAnswers((prevUsersAnswers) => {
       return [...prevUsersAnswers, selectedAnswer];
     });
-  },
-  []);
+  }, []);
 
   const handleSkipAnswer = useCallback(
     () => hadleSelectAnswer(null),
